@@ -1,0 +1,30 @@
+image: amazonlinux
+
+pipelines:
+  default:
+    - step:
+        name: Deploy AWS CloudFormation Stack
+        image: atlassian/default-image:2
+        caches:
+          - awscli
+        script:
+          - apk add --no-cache python3 py3-pip
+          - pip3 install awscli
+          - chmod +x scripts/deploy.sh
+          - ./scripts/deploy.sh $BITBUCKET_DEPLOYMENT_ENVIRONMENT
+        services:
+          - docker
+        deployments:
+          staging: # Define o ambiente staging (ou ambiente intermediário como homol)
+            variables:
+              BITBUCKET_DEPLOYMENT_ENVIRONMENT: "homol"
+          production: # Define o ambiente de produção
+            variables:
+              BITBUCKET_DEPLOYMENT_ENVIRONMENT: "prod"
+          development: # Define o ambiente de desenvolvimento
+            variables:
+              BITBUCKET_DEPLOYMENT_ENVIRONMENT: "dev"
+
+definitions:
+  caches:
+    awscli: /root/.cache/pip
