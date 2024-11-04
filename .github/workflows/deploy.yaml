@@ -47,7 +47,7 @@ jobs:
           cat "${PARAM_FILE}"  # Mostra o conteúdo do arquivo para depuração
 
           # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue"
-          PARAMS=$(jq -r 'to_entries | map("\(.key)=\"\(.value|tostring)\"") | join(" ")' "${PARAM_FILE}")
+          PARAMS=($(jq -r '.Parameters[] | [.ParameterKey, .ParameterValue] | "\(.[0])=\(.[1])"' ${PARAM_FILE}))
 
           echo "Converted parameters: $PARAMS"
 
