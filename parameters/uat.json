@@ -1,6 +1,5 @@
 {
+    "ApiEndpoint": "https://api.example.com/dev",
     "Environment": "uat",
-    "ScheduleExpression": "rate(5 minutes)",
-    "ApiEndpoint": "https://my-dev-api.example.com"
+    "Frequency": "rate(5 minutes)"
 }
-
