@@ -4,7 +4,6 @@ on:
   push:
     branches:
       - dev
-      - homol
       - prod
       - uat  # Adicione outras branches conforme necessário
 
@@ -13,7 +12,7 @@ jobs:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: ${{ vars.AWS_REGION }}
+      AWS_REGION: ${{ vars.AWS_REGION }}  # Use secrets se a variável não estiver configurada
 
     steps:
       - name: Checkout code
@@ -31,12 +30,20 @@ jobs:
           # Extrai o nome da branch e define o caminho do arquivo de parâmetros
           BRANCH_NAME=$(echo "${GITHUB_REF##*/}")
           PARAM_FILE="parameters/${BRANCH_NAME}.json"
+          echo "Using parameter file: ${PARAM_FILE}"
+
+          # Verifica se o arquivo existe
+          if [ ! -f "$PARAM_FILE" ]; then
+            echo "Error: Parameter file ${PARAM_FILE} not found."
+            exit 1
+          fi
+
           echo "PARAM_FILE=${PARAM_FILE}" >> $GITHUB_ENV
 
       - name: Convert JSON to Parameter Overrides Format
         id: convert_params
         run: |
-          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" com aspas duplas ao redor do valor
+          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue"
           PARAMS=$(jq -r 'to_entries | map("\(.key)=\"\(.value|tostring)\"") | join(" ")' "${{ env.PARAM_FILE }}")
           
           if [ -z "$PARAMS" ]; then
@@ -49,9 +56,11 @@ jobs:
 
       - name: Deploy CloudFormation stack
         run: |
+          echo "Starting CloudFormation deploy..."
+          echo "Using parameters: ${{ env.parameter_overrides }}"
           aws cloudformation deploy \
             --template-file templates/eventbridge.yaml \
-            --stack-name eventbridge-stack-${{ github.ref_name }} \
+            --stack-name eventbridge-stack-${BRANCH_NAME} \
             --parameter-overrides ${{ env.parameter_overrides }} \
             --capabilities CAPABILITY_NAMED_IAM
 
