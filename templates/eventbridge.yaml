@@ -1,0 +1,56 @@
+
+AWSTemplateFormatVersion: '2010-09-09'
+Description: "CloudFormation template para EventBridge com API Destination"
+
+Parameters:
+  Environment:
+    Type: String
+    Default: "uat"
+    AllowedValues:
+      - dev
+      - uat
+      - prod
+  ScheduleExpression:
+    Type: String
+    Default: "rate(5 minutes)"
+    Description: "Frequência de execução do evento. Ex: rate(5 minutes), cron(0 12 * * ? *)"
+  ApiEndpoint:
+    Type: String
+    Description: "URL da API que o EventBridge vai chamar"
+
+Resources:
+  EventBus:
+    Type: AWS::Events::EventBus
+    Properties:
+      Name: !Sub "event-bus-${Environment}"
+
+  ApiDestination:
+    Type: AWS::Events::ApiDestination
+    Properties:
+      Name: !Sub "api-destination-${Environment}"
+      ConnectionArn: !GetAtt ApiConnection.Arn
+      InvocationEndpoint: !Ref ApiEndpoint
+      HttpMethod: POST
+      InvocationRateLimitPerSecond: 10
+
+  ApiConnection:
+    Type: AWS::Events::Connection
+    Properties:
+      Name: !Sub "api-connection-${Environment}"
+      AuthorizationType: NONE
+
+  ScheduledRule:
+    Type: AWS::Events::Rule
+    Properties:
+      Name: !Sub "scheduled-rule-${Environment}"
+      EventBusName: !Ref EventBus
+      ScheduleExpression: !Ref ScheduleExpression
+      Targets:
+        - Arn: !Ref ApiDestination
+          Id: "ApiDestinationTarget"
+
+Outputs:
+  EventBusName:
+    Value: !Ref EventBus
+    Export:
+      Name: !Sub "${Environment}-EventBusName"
