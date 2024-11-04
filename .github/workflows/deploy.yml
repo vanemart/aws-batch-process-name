@@ -29,7 +29,7 @@ jobs:
         run: |
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             ENV="dev"
-          elif [ "${{ github.ref }}" == "refs/heads/homol" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/uat" ]; then
             ENV="uat"
           elif [ "${{ github.ref }}" == "refs/heads/prod" ]; then
             ENV="prod"
