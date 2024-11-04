@@ -46,7 +46,7 @@ jobs:
           echo "Reading parameters from file: ${PARAM_FILE}"
           cat "${PARAM_FILE}"  # Exibe o conteúdo do arquivo para depuração
 
-          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" sem aspas extras
+          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" sem aspas adicionais
           RAW_PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' "${PARAM_FILE}")
 
           if [ -z "$RAW_PARAMS" ]; then
@@ -54,8 +54,8 @@ jobs:
             exit 1
           fi
 
-          # Adiciona aspas simples ao redor dos valores no shell
-          PARAMS=$(echo "$RAW_PARAMS" | sed "s/=\([^ ]*\)/='\1'/g")
+          # Adiciona aspas duplas ao redor de cada par "chave='valor'" no shell
+          PARAMS=$(echo "$RAW_PARAMS" | sed 's/[^ ]*=[^ ]*/"&"/g')
 
           echo "Converted parameters: $PARAMS"
           echo "parameter_overrides=$PARAMS" >> $GITHUB_ENV
