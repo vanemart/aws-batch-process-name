@@ -44,15 +44,18 @@ jobs:
         id: convert_params
         run: |
           echo "Reading parameters from file: ${PARAM_FILE}"
-          cat "${PARAM_FILE}"  # Mostra o conteúdo do arquivo para depuração
+          cat "${PARAM_FILE}"  # Exibe o conteúdo do arquivo para depuração
 
-          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue"
-          PARAMS=$(jq -r "to_entries | map(\"\\(.key)=\\('\(.value|tostring)\\')\") | join(\" \")" "${PARAM_FILE}")
+          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" sem aspas extras
+          RAW_PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' "${PARAM_FILE}")
 
-          if [ -z "$PARAMS" ]; then
+          if [ -z "$RAW_PARAMS" ]; then
             echo "Error: No parameters found or jq conversion failed."
             exit 1
           fi
+
+          # Adiciona aspas simples ao redor dos valores no shell
+          PARAMS=$(echo "$RAW_PARAMS" | sed "s/=\([^ ]*\)/='\1'/g")
 
           echo "Converted parameters: $PARAMS"
           echo "parameter_overrides=$PARAMS" >> $GITHUB_ENV
