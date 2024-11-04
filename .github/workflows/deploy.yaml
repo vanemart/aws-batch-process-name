@@ -43,6 +43,8 @@ jobs:
       - name: Convert JSON to Parameter Overrides Format
         id: convert_params
         run: |
+          BRANCH_NAME=$(echo "${GITHUB_REF##*/}")
+          PARAM_FILE="parameters/${BRANCH_NAME}.json"
           echo "Reading parameters from file: ${PARAM_FILE}"
           cat "${PARAM_FILE}"  # Mostra o conteúdo do arquivo para depuração
 
