@@ -36,8 +36,8 @@ jobs:
       - name: Convert JSON to Parameter Overrides Format
         id: convert_params
         run: |
-          # Converte o JSON para uma lista de pares "ParameterKey='ParameterValue'" com valores entre aspas
-          PARAMS=$(jq -r 'to_entries | map("\(.key)=\'\(.value|tostring)\'") | join(" ")' "${{ env.PARAM_FILE }}")
+          # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" com aspas duplas ao redor do valor
+          PARAMS=$(jq -r 'to_entries | map("\(.key)=\"\(.value|tostring)\"") | join(" ")' "${{ env.PARAM_FILE }}")
           
           if [ -z "$PARAMS" ]; then
             echo "Error: No parameters found or jq conversion failed."
