@@ -54,3 +54,4 @@ Outputs:
     Value: !Ref EventBus
     Export:
       Name: !Sub "${Environment}-EventBusName"
+
