@@ -17,7 +17,7 @@ pipelines:
         deployments:
           staging: # Define o ambiente staging (ou ambiente intermediário como homol)
             variables:
-              BITBUCKET_DEPLOYMENT_ENVIRONMENT: "homol"
+              BITBUCKET_DEPLOYMENT_ENVIRONMENT: "uat"
           production: # Define o ambiente de produção
             variables:
               BITBUCKET_DEPLOYMENT_ENVIRONMENT: "prod"
