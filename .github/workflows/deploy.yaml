@@ -1,0 +1,53 @@
+name: Deploy CloudFormation Stack
+
+on:
+  push:
+    branches:
+      - dev
+      - homol
+      - prod
+      - uat  # Adicione outras branches conforme necessário
+
+jobs:
+  deploy:
+    runs-on: ubuntu-latest
+
+    env:
+      AWS_REGION: ${{ vars.AWS_REGION }}
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v2
+
+      - name: Configure AWS credentials
+        uses: aws-actions/configure-aws-credentials@v1
+        with:
+          aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+          aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+          aws-region: ${{ env.AWS_REGION }}
+
+      - name: Set environment parameters file
+        run: |
+          # Extrai o nome da branch e define o caminho do arquivo de parâmetros
+          BRANCH_NAME=$(echo "${GITHUB_REF##*/}")
+          PARAM_FILE="parameters/${BRANCH_NAME}.json"
+          echo "PARAM_FILE=${PARAM_FILE}" >> $GITHUB_ENV
+
+      - name: Convert JSON to Parameter Overrides Format
+        id: convert_params
+        run: |
+          if [ -f "${{ env.PARAM_FILE }}" ]; then
+            PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | .[]' ${{ env.PARAM_FILE }})
+            echo "parameter_overrides=$PARAMS" >> $GITHUB_ENV
+          else
+            echo "Arquivo de parâmetros não encontrado: ${{ env.PARAM_FILE }}"
+            exit 1
+          fi
+
+      - name: Deploy CloudFormation stack
+        run: |
+          aws cloudformation deploy \
+            --template-file templates/eventbridge.yaml \
+            --stack-name eventbridge-stack-${{ github.ref_name }} \
+            --parameter-overrides ${{ env.parameter_overrides }} \
+            --capabilities CAPABILITY_NAMED_IAM
