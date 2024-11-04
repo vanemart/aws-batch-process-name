@@ -5,7 +5,7 @@ Description: "CloudFormation template para EventBridge com API Destination"
 Parameters:
   Environment:
     Type: String
-    Default: "dev"
+    Default: "uat"
     AllowedValues:
       - dev
       - uat
