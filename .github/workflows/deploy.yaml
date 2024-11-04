@@ -43,16 +43,21 @@ jobs:
       - name: Convert JSON to Parameter Overrides Format
         id: convert_params
         run: |
+          echo "Reading parameters from file: ${PARAM_FILE}"
+          cat "${PARAM_FILE}"  # Mostra o conteúdo do arquivo para depuração
+
           # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue"
-          PARAMS=$(jq -r 'to_entries | map("\(.key)=\"\(.value|tostring)\"") | join(" ")' "${{ env.PARAM_FILE }}")
-          
+          PARAMS=$(jq -r 'to_entries | map("\(.key)=\"\(.value|tostring)\"") | join(" ")' "${PARAM_FILE}")
+
+          echo "Converted parameters: $PARAMS"
+
           if [ -z "$PARAMS" ]; then
             echo "Error: No parameters found or jq conversion failed."
             exit 1
           fi
 
-          echo "Converted parameters: $PARAMS"
           echo "parameter_overrides=$PARAMS" >> $GITHUB_ENV
+
 
       - name: Deploy CloudFormation stack
         run: |
