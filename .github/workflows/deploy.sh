@@ -6,7 +6,7 @@ PARAMETERS_FILE="parameters/$ENVIRONMENT.json"
 TEMPLATE_FILE="templates/eventbridge_template.yaml"
 
 if [ -z "$ENVIRONMENT" ]; then
-  echo "Ambiente não especificado. Use dev, dev2, uat, ou prod."
+  echo "Ambiente não especificado. Use dev, uat, ou prod."
   exit 1
 fi
 
