@@ -1,5 +1,14 @@
-{
-    "ApiEndpoint": "https://api.example.com/uat",
-    "Environment": "uat",
-    "Frequency": "rate(5 minutes)"
-}
+[
+    {
+        "ParameterKey": "Environment",
+        "ParameterValue": "uat"
+    },
+    {
+        "ParameterKey": "ApiEndpoint",
+        "ParameterValue": "https://api.example.com/uat"
+    },
+    {
+        "ParameterKey": "Frequency",
+        "ParameterValue": "rate(5 minutes)"
+    }
+]
