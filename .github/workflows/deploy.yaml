@@ -54,3 +54,6 @@ jobs:
             --stack-name eventbridge-stack-${{ github.ref_name }} \
             --parameter-overrides ${{ env.parameter_overrides }} \
             --capabilities CAPABILITY_NAMED_IAM
+
+      - name: Debug environment
+        run: env
