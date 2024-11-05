@@ -1,5 +1,7 @@
 {
     "Environment": "prod",
     "ScheduleExpression": "rate(5 minutes)",
-    "ApiEndpoint": "https://my-dev-api.example.com"
+    "ApiEndpoint": "https://my-dev-api.example.com",
+    "ApiUsername": "su",
+    "ApiPassword": "gw"
 }
