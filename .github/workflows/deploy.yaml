@@ -25,6 +25,21 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
+      - name: Set environment parameters
+        run: |
+          if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
+            ENV="dev"
+          elif [ "${{ github.ref }}" == "refs/heads/uat" ]; then
+            ENV="uat"
+          elif [ "${{ github.ref }}" == "refs/heads/prod" ]; then
+            ENV="prod"
+          else
+            echo "Unsupported branch. Exiting."
+            exit 1
+          fi
+          echo "ENVIRONMENT=${ENV}" >> $GITHUB_ENV
+
+
       - name: Set environment parameters file
         run: |
           # Extrai o nome da branch e define o caminho do arquivo de parâmetros
