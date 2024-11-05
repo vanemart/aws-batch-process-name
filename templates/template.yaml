@@ -89,6 +89,6 @@ Resources:
                   - "iam:PutRolePolicy"
                   - "iam:DeleteRolePolicy"
                 Resource:
-                  - !GetAtt ApiDestination.Arn
-                  - !GetAtt CustomEventBus.Arn
+                  - !GetAtt HttpApiDestination.Arn
+                  
 
