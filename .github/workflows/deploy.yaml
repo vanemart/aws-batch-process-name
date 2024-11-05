@@ -47,7 +47,7 @@ jobs:
           cat "${PARAM_FILE}"  # Exibe o conteúdo do arquivo para depuração
 
           # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" sem aspas adicionais
-          RAW_PARAMS=$(jq -r 'to_entries | map("\(.key)=\(.value|tostring)") | join(" ")' "${PARAM_FILE}")
+          RAW_PARAMS=$(jq -r 'to_entries | map("\"\(.key)=\(.value|tostring)\"") | join (" ")' "${PARAM_FILE}")
 
           if [ -z "$RAW_PARAMS" ]; then
             echo "Error: No parameters found or jq conversion failed."
@@ -55,10 +55,10 @@ jobs:
           fi
 
           # Adiciona aspas duplas ao redor de cada par "chave='valor'" no shell
-          PARAMS=$(echo "$RAW_PARAMS" | sed 's/[^ ]*=[^ ]*/"&"/g')
+          # PARAMS=$(echo "$RAW_PARAMS" | sed 's/[^ ]*=[^ ]*/"&"/g')
 
           echo "Converted parameters: $PARAMS"
-          echo "parameter_overrides=$PARAMS" >> $GITHUB_ENV
+          echo "parameter_overrides=${PARAMS}" >> $GITHUB_ENV
 
       - name: Deploy CloudFormation stack
         run: |
