@@ -1,6 +1,6 @@
 AWSTemplateFormatVersion: "2010-09-09"
 Resources:
-  # Primeira regra de evento, disparando uma requisição HTTP com userId específico
+  # Primeira regra de evento, disparando uma requisição HTTP com userId específico no path
   EventRule1:
     Type: "AWS::Events::Rule"
     Properties:
@@ -12,9 +12,9 @@ Resources:
           Arn: !GetAtt HttpApiDestination.Arn
           RoleArn: !GetAtt EventBridgeRole.Arn
           InputTransformer:
-            InputTemplate: '{"userId": "123"}'  # Parâmetro userId para a requisição
+            InputTemplate: '{"InvocationEndpoint": "https://example.com/users/123"}'  # URL completa com userId
 
-  # Segunda regra de evento, disparando uma requisição HTTP com outro userId
+  # Segunda regra de evento, disparando uma requisição HTTP com outro userId no path
   EventRule2:
     Type: "AWS::Events::Rule"
     Properties:
@@ -26,9 +26,9 @@ Resources:
           Arn: !GetAtt HttpApiDestination.Arn
           RoleArn: !GetAtt EventBridgeRole.Arn
           InputTransformer:
-            InputTemplate: '{"userId": "456"}'  # Parâmetro userId diferente para este evento
+            InputTemplate: '{"InvocationEndpoint": "https://example.com/users/456"}'  # URL completa com userId
 
-  # Terceira regra de evento, disparando uma requisição HTTP com outro userId
+  # Terceira regra de evento, disparando uma requisição HTTP com outro userId no path
   EventRule3:
     Type: "AWS::Events::Rule"
     Properties:
@@ -40,7 +40,7 @@ Resources:
           Arn: !GetAtt HttpApiDestination.Arn
           RoleArn: !GetAtt EventBridgeRole.Arn
           InputTransformer:
-            InputTemplate: '{"userId": "789"}'  # Parâmetro userId para este evento
+            InputTemplate: '{"InvocationEndpoint": "https://example.com/users/789"}'
 
   # API Destination compartilhado entre todas as regras de evento, com path parameter userId
   HttpApiDestination:
