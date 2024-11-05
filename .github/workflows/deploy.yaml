@@ -78,7 +78,7 @@ jobs:
           echo "Using parameters: ${{ env.parameter_overrides }}"
           aws cloudformation deploy \
             --debug \
-            --template-file templates/eventbridge.yaml \
+            --template-file templates/template.yaml \
             --stack-name aws-batch-process-eventbridge-stack-${{ env.ENVIRONMENT }} \
             --parameter-overrides ${{ env.parameter_overrides }} \
             --capabilities CAPABILITY_NAMED_IAM
