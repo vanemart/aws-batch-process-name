@@ -4,7 +4,7 @@ on:
   push:
     branches:
       - dev
-      - prod
+      - master
       - uat  # Adicione outras branches conforme necessário
 
 jobs:
@@ -31,7 +31,7 @@ jobs:
             ENV="dev"
           elif [ "${{ github.ref }}" == "refs/heads/uat" ]; then
             ENV="uat"
-          elif [ "${{ github.ref }}" == "refs/heads/prod" ]; then
+          elif [ "${{ github.ref }}" == "refs/heads/master" ]; then
             ENV="prod"
           else
             echo "Unsupported branch. Exiting."
