@@ -5,14 +5,14 @@ on:
     branches:
       - dev
       - master
-      - uat  # Adicione outras branches conforme necessário
+      - uat
 
 jobs:
   deploy:
     runs-on: ubuntu-latest
 
     env:
-      AWS_REGION: ${{ vars.AWS_REGION }}  # Use secrets se a variável não estiver configurada
+      AWS_REGION: ${{ vars.AWS_REGION }}
 
     steps:
       - name: Checkout code
@@ -25,7 +25,7 @@ jobs:
           aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
           aws-region: ${{ env.AWS_REGION }}
 
-      - name: Set environment parameters
+      - name: Set Environment According to Branch Name
         run: |
           if [ "${{ github.ref }}" == "refs/heads/dev" ]; then
             ENV="dev"
@@ -40,11 +40,9 @@ jobs:
           echo "ENVIRONMENT=${ENV}" >> $GITHUB_ENV
 
 
-      - name: Set environment parameters file
-        run: |
-          # Extrai o nome da branch e define o caminho do arquivo de parâmetros
-          BRANCH_NAME=$(echo "${GITHUB_REF##*/}")
-          PARAM_FILE="parameters/${BRANCH_NAME}.json"
+      - name: Set Environment Parameters File
+        run: |         
+          PARAM_FILE="parameters/${{ env.ENVIRONMENT }}.json"
           echo "Using parameter file: ${PARAM_FILE}"
 
           # Verifica se o arquivo existe
@@ -68,21 +66,20 @@ jobs:
             echo "Error: No parameters found or jq conversion failed."
             exit 1
           fi
-
-          # Escape params
+          
           PARAMS=$(sed -e 's/(/\\(/g;s/)/\\)/g' <<< $PARAMS)
 
           echo "Converted parameters: $PARAMS"
           echo "parameter_overrides=${PARAMS}" >> $GITHUB_ENV
 
-      - name: Deploy CloudFormation stack
+      - name: Deploy CloudFormation Stack
         run: |
           echo "Starting CloudFormation deploy..."
           echo "Using parameters: ${{ env.parameter_overrides }}"
           aws cloudformation deploy \
             --debug \
             --template-file templates/eventbridge.yaml \
-            --stack-name eventbridge-stack-${{ env.ENVIRONMENT }} \
+            --stack-name aws-batch-process-eventbridge-stack-${{ env.ENVIRONMENT }} \
             --parameter-overrides ${{ env.parameter_overrides }} \
             --capabilities CAPABILITY_NAMED_IAM
 
