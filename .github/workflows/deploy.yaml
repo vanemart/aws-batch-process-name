@@ -67,7 +67,7 @@ jobs:
           aws cloudformation deploy \
             --debug \
             --template-file templates/eventbridge.yaml \
-            --stack-name eventbridge-stack-${BRANCH_NAME} \
+            --stack-name eventbridge-stack-${{ env.ENVIRONMENT }} \
             --parameter-overrides ${{ env.parameter_overrides }} \
             --capabilities CAPABILITY_NAMED_IAM
 
