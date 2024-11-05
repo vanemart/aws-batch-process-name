@@ -83,7 +83,7 @@ Resources:
     Properties:
       FlexibleTimeWindow:
          Mode: "OFF"
-      Name: custom-event-schedule
+      Name: !Sub "custom-event-schedule-${Environment}"
       ScheduleExpression: !Ref ScheduleExpression
       Target:
         Arn: !GetAtt CustomEventBus.Arn
