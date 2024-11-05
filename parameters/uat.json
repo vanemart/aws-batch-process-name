@@ -1,6 +1,6 @@
 {
   "Environment": "uat",
-  "ApiEndpoint": "https://my-uat-api.example.com/*",
+  "ApiEndpoint": "https://my-uat-api.example.com",
   "ApiUsername": "su",
   "ApiPassword": "gw"
 }
