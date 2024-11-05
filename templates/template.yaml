@@ -11,10 +11,14 @@ Parameters:
       - dev
       - uat
       - prod
-  ScheduleExpression:
+  ScheduleExpressionABC:
     Type: String
     Default: "rate(5 minutes)"
     Description: "Frequência de execução do evento. Ex: rate(5 minutes), cron(0 12 * * ? *)"
+  ScheduleExpressionXYZ:
+    Type: String
+    Default: "cron(0 12 * * ? *)"
+    Description: "Frequência de execução do evento. Ex: rate(5 minutes), cron(0 12 * * ? *)"  
   ApiEndpoint:
     Type: String
     Description: "URL da API que o EventBridge vai chamar"
@@ -84,8 +88,8 @@ Resources:
     Properties:
       FlexibleTimeWindow:
          Mode: "OFF"
-      Name: !Sub "custom-event-schedule-${Environment}"
-      ScheduleExpression: !Ref ScheduleExpression
+      Name: !Sub "process-batch-abc-schedule-${Environment}"
+      ScheduleExpression: !Ref ScheduleExpressionABC
       Target:
         Arn: !GetAtt CustomEventBus.Arn
         RoleArn: !GetAtt SchedulerRole.Arn
@@ -95,3 +99,20 @@ Resources:
             "source": "my.custom.source",
             "ApiEndpoint": "${ApiDestination.Arn}"
           }
+          
+  ScheduledEvent:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      FlexibleTimeWindow:
+         Mode: "OFF"
+      Name: !Sub "process-batch-xyz-schedule-${Environment}"
+      ScheduleExpression: !Ref ScheduleExpressionXYZ
+      Target:
+        Arn: !GetAtt CustomEventBus.Arn
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: !Sub |
+          {
+            "detail-type": "ScheduledEvent",
+            "source": "my.custom.source",
+            "ApiEndpoint": "${ApiDestination.Arn}"
+          }       
