@@ -65,6 +65,7 @@ jobs:
           echo "Starting CloudFormation deploy..."
           echo "Using parameters: ${{ env.parameter_overrides }}"
           aws cloudformation deploy \
+            --debug \
             --template-file templates/eventbridge.yaml \
             --stack-name eventbridge-stack-${BRANCH_NAME} \
             --parameter-overrides ${{ env.parameter_overrides }} \
