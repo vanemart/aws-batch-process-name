@@ -88,9 +88,9 @@ Resources:
       Target:
         Arn: !GetAtt CustomEventBus.Arn
         RoleArn: !GetAtt SchedulerRole.Arn
-        Input: |
+        Input: !Sub |
           {
             "detail-type": "ScheduledEvent",
             "source": "my.custom.source",
-            "ApiEndpoint": !GetAtt ApiDestination.Arn  # Inclui o destino da API
+            "ApiEndpoint": "${ApiDestination.Arn}"
           }
