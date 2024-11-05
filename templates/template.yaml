@@ -54,7 +54,7 @@ Resources:
       InvocationEndpoint: !Ref ApiEndpoint
       HttpMethod: POST
 
-  SchedulerRoleABC:
+  SchedulerRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "custom-scheduler-role-${Environment}"
@@ -83,7 +83,7 @@ Resources:
                   - !GetAtt ApiDestination.Arn
                   - !GetAtt CustomEventBus.Arn
 
-  ScheduledEventXYZ:
+  ScheduledEventABC:
     Type: AWS::Scheduler::Schedule
     Properties:
       FlexibleTimeWindow:
@@ -100,7 +100,7 @@ Resources:
             "ApiEndpoint": "${ApiDestination.Arn}/ABC"
           }
           
-  ScheduledEvent:
+  ScheduledEventXYZ:
     Type: AWS::Scheduler::Schedule
     Properties:
       FlexibleTimeWindow:
