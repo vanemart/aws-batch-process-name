@@ -97,7 +97,7 @@ Resources:
           {
             "detail-type": "ScheduledEvent",
             "source": "my.custom.source",
-            "ApiEndpoint": "${ApiDestination.Arn}"
+            "ApiEndpoint": "${ApiDestination.Arn}/ABC"
           }
           
   ScheduledEvent:
@@ -114,5 +114,5 @@ Resources:
           {
             "detail-type": "ScheduledEvent",
             "source": "my.custom.source",
-            "ApiEndpoint": "${ApiDestination.Arn}"
+            "ApiEndpoint": "${ApiDestination.Arn}/XYZ"
           }       
