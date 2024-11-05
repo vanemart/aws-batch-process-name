@@ -48,7 +48,7 @@ Resources:
     Properties: 
       Name: "HttpApiDestination"
       ConnectionArn: !GetAtt EventBridgeConnection.Arn
-      InvocationEndpoint: "https://example.com/users/<userId>"  # Path parameter userId
+      InvocationEndpoint: "https://example.com/users"
       HttpMethod: "GET"
 
   # Conexão única compartilhada entre todos os eventos
