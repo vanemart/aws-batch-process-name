@@ -17,6 +17,12 @@ Parameters:
   ApiEndpoint:
     Type: String
     Description: "URL da API que o EventBridge vai chamar"
+  ApiUsername:
+    Type: String
+    Description: "Username para autenticação na api"
+  ApiPassword:
+    Type: String
+    Description: "Password para autenticação na api"
 
 Resources:
   EventBus:
