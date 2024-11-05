@@ -48,11 +48,14 @@ jobs:
 
           # Converte o JSON para uma lista de pares "ParameterKey=ParameterValue" sem aspas adicionais
           PARAMS=$(jq -r 'to_entries | map("\"\(.key)=\(.value|tostring)\"") | join (" ")' "${PARAM_FILE}")
-
+  
           if [ -z "$PARAMS" ]; then
             echo "Error: No parameters found or jq conversion failed."
             exit 1
           fi
+
+          # Escape params
+          PARAMS=$(sed -e 's/(/\\(/g;s/)/\\)/g' <<< $PARAMS)
 
           echo "Converted parameters: $PARAMS"
           echo "parameter_overrides=${PARAMS}" >> $GITHUB_ENV
