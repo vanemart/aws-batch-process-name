@@ -69,9 +69,13 @@ Resources:
                 Action:
                   - "events:InvokeApiDestination"
                   - "events:PutEvents"
+                  - "iam:GetRolePolicy"             
+                  - "iam:ListAttachedRolePolicies"
+                  - "iam:AttachRolePolicy"
                 Resource:
-                  - !GetAtt ApiDestination.Arn
-                  - !GetAtt CustomEventBus.Arn
+                - !GetAtt ApiDestination.Arn
+                - !GetAtt CustomEventBus.Arn
+                - !Sub "arn:aws:iam::${AWS::AccountId}:role/${SchedulerRole}"
 
   ScheduledEvent:
     Type: AWS::Scheduler::Schedule
