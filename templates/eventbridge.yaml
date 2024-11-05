@@ -69,9 +69,11 @@ Resources:
                 Action:
                   - "events:InvokeApiDestination"
                   - "events:PutEvents"
-                  - "iam:GetRolePolicy"             
+                  - "iam:GetRolePolicy"
                   - "iam:ListAttachedRolePolicies"
                   - "iam:AttachRolePolicy"
+                  - "iam:PutRolePolicy"
+                  - "iam:DeleteRolePolicy"
                 Resource:
                   - !GetAtt ApiDestination.Arn
                   - !GetAtt CustomEventBus.Arn
