@@ -24,20 +24,12 @@ Parameters:
     Type: String
     Description: "Password para autenticação na api"
 
+
 Resources:
-  EventBus:
+  CustomEventBus:
     Type: AWS::Events::EventBus
     Properties:
-      Name: !Sub "event-bus-${Environment}"
-
-  ApiDestination:
-    Type: AWS::Events::ApiDestination
-    Properties:
-      Name: !Sub "api-destination-${Environment}"
-      ConnectionArn: !GetAtt ApiConnection.Arn
-      InvocationEndpoint: !Ref ApiEndpoint
-      HttpMethod: POST
-      InvocationRateLimitPerSecond: 10
+      Name: !Sub "custom-event-bus-${Environment}"
 
   ApiConnection:
     Type: AWS::Events::Connection
@@ -49,18 +41,51 @@ Resources:
           Username: !Sub ${ApiUsername}
           Password: !Sub ${ApiPassword}
 
-  ScheduledRule:
-    Type: AWS::Events::Rule
+  ApiDestination:
+    Type: AWS::Events::ApiDestination
     Properties:
-      Name: !Sub "scheduled-rule-${Environment}"
-      EventBusName: !Ref EventBus
-      ScheduleExpression: !Ref ScheduleExpression
-      Targets:
-        - Arn: !Ref ApiDestination
-          Id: "ApiDestinationTarget"
+      Name: !Sub "api-destination-${Environment}"
+      ConnectionArn: !GetAtt ApiConnection.Arn
+      InvocationEndpoint: !Ref ApiEndpoint
+      HttpMethod: POST
 
-Outputs:
-  EventBusName:
-    Value: !Ref EventBus
-    Export:
-      Name: !Sub "${Environment}-EventBusName"
+  SchedulerRole:
+    Type: AWS::IAM::Role
+    Properties:
+      RoleName: SchedulerRole
+      AssumeRolePolicyDocument:
+        Version: "2012-10-17"
+        Statement:
+          - Effect: "Allow"
+            Principal:
+              Service: "scheduler.amazonaws.com"
+            Action: "sts:AssumeRole"
+      Policies:
+        - PolicyName: !Sub "custom-event-bridge-policy-${Environment}"
+          PolicyDocument:
+            Version: "2012-10-17"
+            Statement:
+              - Effect: "Allow"
+                Action:
+                  - "events:InvokeApiDestination"
+                  - "events:PutEvents"
+                Resource:
+                  - !GetAtt ApiDestination.Arn
+                  - !GetAtt CustomEventBus.Arn
+
+  ScheduledEvent:
+    Type: AWS::Scheduler::Schedule
+    Properties:
+      FlexibleTimeWindow:
+        Mode: OFF
+      Name: custom-event-schedule
+      ScheduleExpression: !Ref ScheduleExpression
+      Target:
+        Arn: !GetAtt CustomEventBus.Arn
+        RoleArn: !GetAtt SchedulerRole.Arn
+        Input: |
+          {
+            "detail-type": "ScheduledEvent",
+            "source": "my.custom.source",
+            "ApiEndpoint": !GetAtt ApiDestination.Arn  # Inclui o destino da API
+          }
