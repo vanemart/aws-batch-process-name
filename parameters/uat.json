@@ -1,10 +1,8 @@
 {
-  
   "Environment": "uat",
   "ScheduleExpression": "rate(5 minutes)",
   "ApiEndpoint": "https://my-uat-api.example.com",
   "ApiUsername": "su",
   "ApiPassword": "gw"
-  
 }
 
