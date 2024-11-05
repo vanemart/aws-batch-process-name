@@ -37,7 +37,11 @@ Resources:
     Type: AWS::Events::Connection
     Properties:
       Name: !Sub "api-connection-${Environment}"
-      AuthorizationType: NONE
+      AuthorizationType: BASIC
+      AuthParameters:
+        BasicAuthParameters:
+          Username: !Sub ${ApiUsername}
+          Password: !Sub ${ApiPassword}
 
   ScheduledRule:
     Type: AWS::Events::Rule
