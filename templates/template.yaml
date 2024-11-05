@@ -1,60 +1,69 @@
-
-
-AWSTemplateFormatVersion: '2010-09-09'
-Description: "CloudFormation template para EventBridge com API Destination"
-
-Parameters:
-  Environment:
-    Type: String
-    Default: "uat"
-    AllowedValues:
-      - dev
-      - uat
-      - prod
-  ScheduleExpressionABC:
-    Type: String
-    Default: "rate(5 minutes)"
-    Description: "Frequência de execução do evento. Ex: rate(5 minutes), cron(0 12 * * ? *)"
-  ScheduleExpressionXYZ:
-    Type: String
-    Default: "cron(0 12 * * ? *)"
-    Description: "Frequência de execução do evento. Ex: rate(5 minutes), cron(0 12 * * ? *)"  
-  ApiEndpoint:
-    Type: String
-    Description: "URL da API que o EventBridge vai chamar"
-  ApiUsername:
-    Type: String
-    Description: "Username para autenticação na api"
-  ApiPassword:
-    Type: String
-    Description: "Password para autenticação na api"
-
-
+AWSTemplateFormatVersion: "2010-09-09"
 Resources:
-  CustomEventBus:
-    Type: AWS::Events::EventBus
+  # Primeira regra de evento, disparando uma requisição HTTP com userId específico
+  EventRule1:
+    Type: "AWS::Events::Rule"
     Properties:
-      Name: !Sub "custom-event-bus-${Environment}"
+      Name: "EventRule1"
+      ScheduleExpression: "cron(0 9 * * ? *)"  # Executa todos os dias às 9h UTC
+      State: "ENABLED"
+      Targets:
+        - Id: "HttpApiTarget1"
+          Arn: !GetAtt HttpApiDestination.Arn
+          RoleArn: !GetAtt EventBridgeRole.Arn
+          InputTransformer:
+            InputTemplate: '{"userId": "123"}'  # Parâmetro userId para a requisição
 
-  ApiConnection:
-    Type: AWS::Events::Connection
+  # Segunda regra de evento, disparando uma requisição HTTP com outro userId
+  EventRule2:
+    Type: "AWS::Events::Rule"
     Properties:
-      Name: !Sub "api-connection-${Environment}"
-      AuthorizationType: BASIC
+      Name: "EventRule2"
+      ScheduleExpression: "cron(0 12 * * ? *)"  # Executa todos os dias às 12h UTC
+      State: "ENABLED"
+      Targets:
+        - Id: "HttpApiTarget2"
+          Arn: !GetAtt HttpApiDestination.Arn
+          RoleArn: !GetAtt EventBridgeRole.Arn
+          InputTransformer:
+            InputTemplate: '{"userId": "456"}'  # Parâmetro userId diferente para este evento
+
+  # Terceira regra de evento, disparando uma requisição HTTP com outro userId
+  EventRule3:
+    Type: "AWS::Events::Rule"
+    Properties:
+      Name: "EventRule3"
+      ScheduleExpression: "cron(0 15 * * ? *)"  # Executa todos os dias às 15h UTC
+      State: "ENABLED"
+      Targets:
+        - Id: "HttpApiTarget3"
+          Arn: !GetAtt HttpApiDestination.Arn
+          RoleArn: !GetAtt EventBridgeRole.Arn
+          InputTransformer:
+            InputTemplate: '{"userId": "789"}'  # Parâmetro userId para este evento
+
+  # API Destination compartilhado entre todas as regras de evento, com path parameter userId
+  HttpApiDestination:
+    Type: "AWS::Events::ApiDestination"
+    Properties: 
+      Name: "HttpApiDestination"
+      ConnectionArn: !GetAtt EventBridgeConnection.Arn
+      InvocationEndpoint: "https://example.com/users/<userId>"  # Path parameter userId
+      HttpMethod: "GET"
+
+  # Conexão única compartilhada entre todos os eventos
+  EventBridgeConnection:
+    Type: "AWS::Events::Connection"
+    Properties: 
+      Name: "SharedEventBridgeConnection"
+      AuthorizationType: "API_KEY"
       AuthParameters:
-        BasicAuthParameters:
-          Username: !Sub ${ApiUsername}
-          Password: !Sub ${ApiPassword}
+        ApiKeyAuthParameters:
+          ApiKeyName: "x-api-key"
+          ApiKeyValue: "SUA_API_KEY_AQUI"  # Substitua pela sua API Key
 
-  ApiDestination:
-    Type: AWS::Events::ApiDestination
-    Properties:
-      Name: !Sub "api-destination-${Environment}"
-      ConnectionArn: !GetAtt ApiConnection.Arn
-      InvocationEndpoint: !Ref ApiEndpoint
-      HttpMethod: POST
-
-  SchedulerRole:
+  # Função IAM para o EventBridge invocar destinos HTTP
+  EventBridgeRole:
     Type: AWS::IAM::Role
     Properties:
       RoleName: !Sub "custom-scheduler-role-${Environment}"
@@ -83,34 +92,3 @@ Resources:
                   - !GetAtt ApiDestination.Arn
                   - !GetAtt CustomEventBus.Arn
 
-  ScheduledEventABC:
-    Type: AWS::Scheduler::Schedule
-    Properties:
-      FlexibleTimeWindow:
-         Mode: "OFF"
-      Name: !Sub "process-batch-abc-schedule-${Environment}"
-      ScheduleExpression: !Ref ScheduleExpressionABC
-      Target:
-        Arn: !GetAtt CustomEventBus.Arn
-        RoleArn: !GetAtt SchedulerRole.Arn
-        Input: !Sub |
-          {
-            "detail-type": "ScheduledEvent",
-            "ApiEndpoint": "${ApiEndpoint}/ABC"
-          }
-          
-  ScheduledEventXYZ:
-    Type: AWS::Scheduler::Schedule
-    Properties:
-      FlexibleTimeWindow:
-         Mode: "OFF"
-      Name: !Sub "process-batch-xyz-schedule-${Environment}"
-      ScheduleExpression: !Ref ScheduleExpressionXYZ
-      Target:
-        Arn: !GetAtt CustomEventBus.Arn
-        RoleArn: !GetAtt SchedulerRole.Arn
-        Input: !Sub |
-          {
-            "detail-type": "ScheduledEvent",
-            "ApiEndpoint": "${ApiEndpoint}/XYZ"
-          }       
